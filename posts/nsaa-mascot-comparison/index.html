@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="John Russell">
-<meta name="dcterms.date" content="2025-04-30">
+<meta name="dcterms.date" content="2025-05-04">
 
-<title>NSAA Mascot Comparison – John Russell’s Sports Data Visualization Site</title>
+<title>How Common Is Each Nebraska High School Football Mascot? – John Russell’s Sports Data Visualization Site</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -110,7 +144,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">NSAA Mascot Comparison</h1>
+      <h1 class="title">How Common Is Each Nebraska High School Football Mascot?</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">football</div>
                 <div class="quarto-category">sports</div>
@@ -131,7 +165,7 @@ ul.task-list li input[type="checkbox"] {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 30, 2025</p>
+        <p class="date">May 4, 2025</p>
       </div>
     </div>
     
@@ -150,6 +184,991 @@ ul.task-list li input[type="checkbox"] {
 
 
 
+<p>High school mascots are more than just symbols. They become synonymous with the school and community that they represent. While many schools adopt common mascots like Eagles, Tigers or Bulldogs, others choose to stand out with unique mascots. Omaha Benson has the Bunnies, Fairbury has the Jeffs, and Columbus has the Discoverers. These mascots all tie into the community in a way that a more-common mascot wouldn’t and gives the community a sense of pride in their uniqueness.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggbeeswarm)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data.csv"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>mascot_enrollment_count <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(MASCOT) <span class="sc">|&gt;</span> </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summarise</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Count=</span><span class="fu">n</span>(),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Total=</span><span class="fu">sum</span>(ENROLLMENT),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Average=</span><span class="fu">mean</span>(ENROLLMENT)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>mascot_enrollment_count_top20 <span class="ot">&lt;-</span> mascot_enrollment_count <span class="sc">|&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(Total)) <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">top_n</span>(<span class="dv">20</span>, <span class="at">wt=</span>Total)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>Bulldogs <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Bulldogs"</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>Tigers <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Tigers"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>Eagles <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Eagles"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>Mustangs <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Mustangs"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>Wildcats <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Wildcats"</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>Cardinals <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Cardinals"</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>Huskies <span class="ot">&lt;-</span> mascot_enrollment_count_top20 <span class="sc">|&gt;</span> </span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(MASCOT <span class="sc">==</span> <span class="st">"Huskies"</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>mascot_enrollment_count_top20, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"lightgrey"</span>) <span class="sc">+</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Bulldogs, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>)<span class="sc">+</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Eagles, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Tigers, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Mustangs, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Wildcats, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Cardinals, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">data=</span>Huskies, <span class="fu">aes</span>(<span class="at">x=</span><span class="fu">reorder</span>(MASCOT, Count), <span class="at">weight=</span>Count), <span class="at">fill=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Animals dominating the mascot frequency race"</span>, </span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">" "</span>,</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"Mascot Count"</span>,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"7 of the 10 most-popular mascots are types of animals."</span>, </span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">"Source: Nebraska School Activities Association | By John Russell"</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>), </span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">10</span>), </span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Out of the 302 schools that competed in the 2024-25 NSAA High School football season, there were 98 different mascots across these teams. The most popular mascot choices among these schools were the generic, commonly-used ones that one would see in a movie or TV show. Eagles, Knights, Tigers and so on.</p>
+<p>Schools using animals as mascots is as common of a choice as anything in sports, and Nebraska spotlights that idea. 7 of the 10 most-popular mascot choices are types of animals. 15 football teams in Nebraska call themselves the Eagles, with the largest being Omaha Central (1879 students) and the smallest being Bruning-Davenport (32 students).</p>
+<p>With 98 different mascots, it becomes necessary to categorize and group them to better understand any trends. The mascots fall into 1 of 10 categories: Bird, Cat, Dog, Human, Insect, Other Animal, Object, Mythical, Weather/Nature, or Miscellaneous.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>humans <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    CATEGORY <span class="sc">==</span> <span class="st">"Human"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_beeswarm</span>(<span class="at">data=</span>data, <span class="fu">aes</span>(<span class="at">x=</span>CATEGORY, <span class="at">y=</span>ENROLLMENT), <span class="at">color=</span><span class="st">"darkgrey"</span>)<span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_beeswarm</span>(<span class="at">data=</span>humans, <span class="fu">aes</span>(<span class="at">x=</span>CATEGORY, <span class="at">y=</span>ENROLLMENT), <span class="at">color=</span><span class="st">"red"</span>)<span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title=</span><span class="st">"Humans winning the category race"</span>, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">x=</span><span class="st">"Mascot Category"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">y=</span><span class="st">"School Enrollment"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle=</span><span class="st">"Human mascots lead the way for categorization."</span>, </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption=</span><span class="st">"Source: Nebraska School Activities Association | By John Russell"</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span> </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">20</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>), </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">10</span>), </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title.position =</span> <span class="st">"plot"</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Humans lead the way in this categorization of mascots. They have an abundance of schools with smaller enrollments as well as a healthy number of schools rising up the enrollment count.</p>
+<p>Although Nebraska’s most-frequent mascots may be the common, “boring” ones, the state has plenty of options for unique/uncommon mascots as well. Out of the 98 total mascots, 46 schools have mascots that no other school in Nebraska has. These range across all 10 categories and all levels of enrollment. Some have local ties that only that only makes sense for that specific school (Centura Centurions, Pender Pendragons, Lincoln High Links). Some have seemingly no connection to the area unless you take a history lesson. Sutherland calls themselves the Sailors despite being nowhere near the ocean. Gothenburg calls themselves the Swedes despite being nowhere near Sweden. Both of those mascots become clearer with a short history lesson that might not be as well-known if it wasn’t for the conversation sparked by the mascots.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>unique_mascots <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Links"</span> <span class="sc">|</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Dusters"</span> <span class="sc">|</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Jeffs"</span> <span class="sc">|</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Whippets"</span> <span class="sc">|</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Haymakers"</span> <span class="sc">|</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Chanticleers"</span> <span class="sc">|</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Pendragons"</span> <span class="sc">|</span> </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Sailors"</span> <span class="sc">|</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Bunnies"</span> <span class="sc">|</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Antlers"</span> <span class="sc">|</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Beavers"</span> <span class="sc">|</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Bees"</span> <span class="sc">|</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Blue Knights"</span> <span class="sc">|</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Bluehawks"</span> <span class="sc">|</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Blujays"</span> <span class="sc">|</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Braves"</span> <span class="sc">|</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Cadets"</span> <span class="sc">|</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Cavaliers"</span> <span class="sc">|</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Centurions"</span> <span class="sc">|</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Chargers"</span> <span class="sc">|</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Cheifs"</span> <span class="sc">|</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Clippers"</span> <span class="sc">|</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Defenders"</span> <span class="sc">|</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Discoverers"</span> <span class="sc">|</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Dukes"</span> <span class="sc">|</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Flyers"</span> <span class="sc">|</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Gators"</span> <span class="sc">|</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Hornets"</span> <span class="sc">|</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Islanders"</span> <span class="sc">|</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Jaguars"</span> <span class="sc">|</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Jets"</span> <span class="sc">|</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Junior Jays"</span> <span class="sc">|</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Minuemen"</span> <span class="sc">|</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Navigators"</span> <span class="sc">|</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Orangemen"</span> <span class="sc">|</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Packers"</span> <span class="sc">|</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Plainsmen"</span> <span class="sc">|</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Pride"</span> <span class="sc">|</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Roughriders"</span> <span class="sc">|</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Scouts"</span> <span class="sc">|</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Silverhawks"</span> <span class="sc">|</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Skyhawks"</span> <span class="sc">|</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Stars"</span> <span class="sc">|</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"The Swarm"</span> <span class="sc">|</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Thunderbolts"</span> <span class="sc">|</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Timerbwolves"</span> <span class="sc">|</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Wolfpack"</span> <span class="sc">|</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    MASCOT <span class="sc">==</span> <span class="st">"Swedes"</span>)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>  unique_mascots <span class="sc">|&gt;</span> </span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCHOOL =</span> <span class="st">"School"</span>,</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">MASCOT =</span> <span class="st">"Mascot"</span>,</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">CATEGORY =</span> <span class="st">"Category"</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"How unique can a school be"</span>,</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"46 mascots only belong to one school. "</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">weight =</span> <span class="st">"bold"</span>, <span class="at">align =</span> <span class="st">"left"</span>),</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_title</span>(<span class="st">"title"</span>)</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">cell_text</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">align =</span> <span class="st">"left"</span>),</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_title</span>(<span class="st">"subtitle"</span>)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_source_note</span>(</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="fu">md</span>(<span class="st">"**By:** John Russell  |  **Source:** Nebraska School Activities Association"</span>)</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>     <span class="at">locations =</span> <span class="fu">cells_column_labels</span>(<span class="at">columns =</span> <span class="fu">everything</span>()),</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>     <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>       <span class="fu">cell_borders</span>(<span class="at">sides =</span> <span class="st">"bottom"</span>, <span class="at">weight =</span> <span class="fu">px</span>(<span class="dv">3</span>)),</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>       <span class="fu">cell_text</span>(<span class="at">weight =</span> <span class="st">"bold"</span>, <span class="at">size=</span><span class="dv">12</span>)</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>     )</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>   ) <span class="sc">|&gt;</span></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_row_striping</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_table_lines</span>(<span class="st">"none"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_style</span>(</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>    <span class="at">style =</span> <span class="fu">list</span>(</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_fill</span>(<span class="at">color =</span> <span class="st">"red"</span>),</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>      <span class="fu">cell_text</span>(<span class="at">color =</span> <span class="st">"white"</span>)</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    <span class="at">locations =</span> <span class="fu">cells_body</span>(</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>      <span class="at">rows =</span> SCHOOL <span class="sc">==</span> <span class="st">"Lincoln High"</span> <span class="sc">|</span> SCHOOL <span class="sc">==</span> <span class="st">"Pender"</span> <span class="sc">|</span> SCHOOL <span class="sc">==</span> <span class="st">"Centura"</span><span class="sc">|</span> SCHOOL <span class="sc">==</span> <span class="st">"Fairbury"</span><span class="sc">|</span> SCHOOL <span class="sc">==</span> <span class="st">"Grand Island"</span>)</span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="pzveloiefp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pzveloiefp table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pzveloiefp thead, #pzveloiefp tbody, #pzveloiefp tfoot, #pzveloiefp tr, #pzveloiefp td, #pzveloiefp th {
+  border-style: none;
+}
+
+#pzveloiefp p {
+  margin: 0;
+  padding: 0;
+}
+
+#pzveloiefp .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pzveloiefp .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pzveloiefp .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pzveloiefp .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pzveloiefp .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pzveloiefp .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pzveloiefp .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pzveloiefp .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pzveloiefp .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pzveloiefp .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pzveloiefp .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#pzveloiefp .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pzveloiefp .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pzveloiefp .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pzveloiefp .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pzveloiefp .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pzveloiefp .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pzveloiefp .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pzveloiefp .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pzveloiefp .gt_first_summary_row {
+  border-top-style: none;
+  border-top-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pzveloiefp .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pzveloiefp .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: none;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: none;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#pzveloiefp .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pzveloiefp .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pzveloiefp .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pzveloiefp .gt_left {
+  text-align: left;
+}
+
+#pzveloiefp .gt_center {
+  text-align: center;
+}
+
+#pzveloiefp .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pzveloiefp .gt_font_normal {
+  font-weight: normal;
+}
+
+#pzveloiefp .gt_font_bold {
+  font-weight: bold;
+}
+
+#pzveloiefp .gt_font_italic {
+  font-style: italic;
+}
+
+#pzveloiefp .gt_super {
+  font-size: 65%;
+}
+
+#pzveloiefp .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pzveloiefp .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pzveloiefp .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pzveloiefp .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pzveloiefp .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pzveloiefp .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pzveloiefp .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#pzveloiefp .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#pzveloiefp div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<th colspan="4" class="gt_heading gt_title gt_font_normal" style="text-align: left; color: #000000; font-weight: bold;">How unique can a school be</th>
+</tr>
+<tr class="gt_heading even">
+<th colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="text-align: left; color: #000000;">46 mascots only belong to one school.</th>
+</tr>
+<tr class="gt_col_headings header">
+<th id="SCHOOL" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: #000000; font-size: 12; font-weight: bold" scope="col">School</th>
+<th id="MASCOT" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: #000000; font-size: 12; font-weight: bold" scope="col">Mascot</th>
+<th id="CATEGORY" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: #000000; font-size: 12; font-weight: bold" scope="col">Category</th>
+<th id="ENROLLMENT" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" style="border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: #000000; font-size: 12; font-weight: bold" scope="col">ENROLLMENT</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Creighton Preparatory School</td>
+<td class="gt_row gt_left" headers="MASCOT">Junior Jays</td>
+<td class="gt_row gt_left" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">1550</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Hastings St. Cecilia</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Bluehawks</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">96</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Lincoln Southwest</td>
+<td class="gt_row gt_left" headers="MASCOT">Silverhawks</td>
+<td class="gt_row gt_left" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">1558</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Omaha Skutt Catholic</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Skyhawks</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">558</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Ord</td>
+<td class="gt_row gt_left" headers="MASCOT">Chanticleers</td>
+<td class="gt_row gt_left" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">119</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Walthill</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Blujays</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Bird</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">71</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Howells-Dodge</td>
+<td class="gt_row gt_left" headers="MASCOT">Jaguars</td>
+<td class="gt_row gt_left" headers="CATEGORY">Cat</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">70</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Elgin</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Wolfpack</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Dog</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">49</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Minden</td>
+<td class="gt_row gt_left" headers="MASCOT">Whippets</td>
+<td class="gt_row gt_left" headers="CATEGORY">Dog</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">190</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Giltner</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Hornets</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Insect</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">43</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Bloomfield</td>
+<td class="gt_row gt_left" headers="MASCOT">Bees</td>
+<td class="gt_row gt_left" headers="CATEGORY">Other Animal</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">65</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Omaha Benson</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Bunnies</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Other Animal</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">1029</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">St. Edward</td>
+<td class="gt_row gt_left" headers="MASCOT">Beavers</td>
+<td class="gt_row gt_left" headers="CATEGORY">Other Animal</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">41</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Wisner-Pilger</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Gators</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Other Animal</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">103</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Archangels Catholic</td>
+<td class="gt_row gt_left" headers="MASCOT">Defenders</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">18</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Battle Creek</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Braves</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">152</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Beatrice</td>
+<td class="gt_row gt_left" headers="MASCOT">Orangemen</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">496</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Bishop Neumann</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Cavaliers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">132</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL" style="background-color: #FF0000; color: #FFFFFF">Centura</td>
+<td class="gt_row gt_left" headers="MASCOT" style="background-color: #FF0000; color: #FFFFFF">Centurions</td>
+<td class="gt_row gt_left" headers="CATEGORY" style="background-color: #FF0000; color: #FFFFFF">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT" style="background-color: #FF0000; color: #FFFFFF">112</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Columbus</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Discoverers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">940</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Cozad</td>
+<td class="gt_row gt_left" headers="MASCOT">Haymakers</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">189</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">David City</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Scouts</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">155</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL" style="background-color: #FF0000; color: #FFFFFF">Fairbury</td>
+<td class="gt_row gt_left" headers="MASCOT" style="background-color: #FF0000; color: #FFFFFF">Jeffs</td>
+<td class="gt_row gt_left" headers="CATEGORY" style="background-color: #FF0000; color: #FFFFFF">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT" style="background-color: #FF0000; color: #FFFFFF">196</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Franklin</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Flyers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">64</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Gothenburg</td>
+<td class="gt_row gt_left" headers="MASCOT">Swedes</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">185</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL" style="background-color: #FF0000; color: #FFFFFF">Grand Island</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT" style="background-color: #FF0000; color: #FFFFFF">Islanders</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY" style="background-color: #FF0000; color: #FFFFFF">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT" style="background-color: #FF0000; color: #FFFFFF">2070</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Lincoln North Star</td>
+<td class="gt_row gt_left" headers="MASCOT">Navigators</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">1361</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Omaha Nation</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Cheifs</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">125</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Omaha South</td>
+<td class="gt_row gt_left" headers="MASCOT">Packers</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">1705</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Perkins County</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Plainsmen</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">100</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">South Platte</td>
+<td class="gt_row gt_left" headers="MASCOT">Blue Knights</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">56</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Southwest</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Roughriders</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">56</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Sutherland</td>
+<td class="gt_row gt_left" headers="MASCOT">Sailors</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">71</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">West Point-Beemer</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Cadets</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">174</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">York</td>
+<td class="gt_row gt_left" headers="MASCOT">Dukes</td>
+<td class="gt_row gt_left" headers="CATEGORY">Human</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">369</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Elkhorn</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Antlers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Miscellaneous</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">576</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Omaha Roncalli Catholic</td>
+<td class="gt_row gt_left" headers="MASCOT">Pride</td>
+<td class="gt_row gt_left" headers="CATEGORY">Miscellaneous</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">239</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL" style="background-color: #FF0000; color: #FFFFFF">Pender</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT" style="background-color: #FF0000; color: #FFFFFF">Pendragons</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY" style="background-color: #FF0000; color: #FFFFFF">Mythical</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT" style="background-color: #FF0000; color: #FFFFFF">95</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL" style="background-color: #FF0000; color: #FFFFFF">Lincoln High</td>
+<td class="gt_row gt_left" headers="MASCOT" style="background-color: #FF0000; color: #FFFFFF">Links</td>
+<td class="gt_row gt_left" headers="CATEGORY" style="background-color: #FF0000; color: #FFFFFF">Object</td>
+<td class="gt_row gt_right" headers="ENROLLMENT" style="background-color: #FF0000; color: #FFFFFF">1551</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Malcolm</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Clippers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Object</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">158</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Sterling</td>
+<td class="gt_row gt_left" headers="MASCOT">Jets</td>
+<td class="gt_row gt_left" headers="CATEGORY">Object</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">34</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Holdrege</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Dusters</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Weather &amp; Nature</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">245</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Kearney Catholic</td>
+<td class="gt_row gt_left" headers="MASCOT">Stars</td>
+<td class="gt_row gt_left" headers="CATEGORY">Weather &amp; Nature</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">163</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Lincoln Pius X</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Thunderbolts</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Weather &amp; Nature</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">792</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="SCHOOL">Quest Forward Academy</td>
+<td class="gt_row gt_left" headers="MASCOT">The Swarm</td>
+<td class="gt_row gt_left" headers="CATEGORY">Weather &amp; Nature</td>
+<td class="gt_row gt_right" headers="ENROLLMENT">73</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="SCHOOL">Riverside</td>
+<td class="gt_row gt_left gt_striped" headers="MASCOT">Chargers</td>
+<td class="gt_row gt_left gt_striped" headers="CATEGORY">Weather &amp; Nature</td>
+<td class="gt_row gt_right gt_striped" headers="ENROLLMENT">58</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="4" class="gt_sourcenote"><strong>By:</strong> John Russell | <strong>Source:</strong> Nebraska School Activities Association</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<p>The mascots of Nebraska generally follow suit with the rest of the country. The generic, common names still reign supreme. Dogs, Cats, Humans and Birds make up the majority of mascots locally. But for every 10 Bulldogs, there’s a Omaha Benson Mighty Bunny, an Ord Chanticleer, a Minden Whippet, or a Fairbury Jeff reminding everyone that mascots can be unique too.</p>
 
 
 
